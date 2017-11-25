@@ -65,5 +65,7 @@ exports.config = {
     jQuery: 'jquery',
     Popper: 'popper.js',
     boostrap: 'bootstrap',
+    react: 'react',
+    reactDOM: 'react-dom',
   },
 };
