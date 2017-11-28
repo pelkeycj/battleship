@@ -1,7 +1,8 @@
 import React from 'react';
 import { Row, Col } from 'react-grid-system';
 import { FormGroup, ControlLabel, FormControl, HelpBlock, Button } from 'react-bootstrap';
-import { joinAppGeneral } from '../actions/app';
+import { connect } from 'react-redux';
+import { getSocket, joinTableChannel } from '../actions/app';
 
 //TODO handle submits
   // app joins a general channel?
@@ -15,7 +16,22 @@ import { joinAppGeneral } from '../actions/app';
 
   // PRIORITY 1: USERS JOIN TABLES AND chat/ see list of users
 
+type Props = {
+  socket: Object,
+  getSocket: () => void,
+  joinTableChannel: () => void,
+}
+
 class Landing extends React.Component {
+
+  componentWillMount() {
+    //this.props.getSocket();
+    this.props.joinTableChannel('lobby');
+  }
+
+  // TODO submission to join a table/create a table
+  // table name field?
+
   render() {
     return (
       <Row>
@@ -52,4 +68,9 @@ class Landing extends React.Component {
 
 
 
-export default Landing;
+export default connect(
+  (state) => ({
+    socket: state.table.socket,
+  }),
+  { getSocket, joinTableChannel },
+)(Landing);
