@@ -1,6 +1,7 @@
 const initialState = {
   socket: null,
   channel: null,
+  table: null,
   username: null,
 };
 
@@ -13,6 +14,12 @@ export default function(state = initialState, action) {
     case 'CHANNEL_CONNECT':
       return {
         channel: action.channel,
+      };
+    case 'TABLE_JOIN':
+      return {
+        channel: action.channel,
+        table: action.table,
+        username: action.username,
       };
     default:
       return state;
