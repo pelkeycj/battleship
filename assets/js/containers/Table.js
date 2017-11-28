@@ -1,5 +1,6 @@
 //@flow
 import React from 'react';
+import { css, StyleSheet } from 'aphrodite';
 import { Row, Col } from 'react-grid-system';
 import { connect } from 'react-redux';
 
@@ -8,6 +9,17 @@ import { connect } from 'react-redux';
 type Props = {
   table: Object,
 }
+
+const styles = StyleSheet.create({
+  header: {
+    borderBottomWidth: '3px',
+    borderBottomStyle: 'solid',
+  },
+  users: {
+    borderRightWidth: '3px',
+    borderRightStyle: 'solid',
+  }
+});
 
 class Table extends React.Component {
 
@@ -21,7 +33,15 @@ class Table extends React.Component {
 
     return (
       <div>
-        <h1>{'Table: ' + tableName}</h1>
+        <h1 className={css(styles.header)}>{'Table: ' + tableName}</h1>
+        <Row>
+          <Col md={4} className={css(styles.users)}>
+            <h3>Users</h3>
+          </Col>
+          <Col md={8}>
+            <h3>Chat</h3>
+          </Col>
+        </Row>
       </div>
     )
   }
