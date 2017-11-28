@@ -28,7 +28,6 @@ export function joinChannel(name) {
   }
 }
 
-// TODO router
 export function createAndJoinTable(lobby, params, router) {
   return (dispatch) => {
     lobby.push('create_table', params)
@@ -43,7 +42,6 @@ export function createAndJoinTable(lobby, params, router) {
   }
 }
 
-// TODO router
 export function joinExisting(params, router) {
   return (dispatch) => {
     joinTable(dispatch, params.joinCode, params.username);
@@ -57,11 +55,10 @@ function joinTable(dispatch, id, username = null) {
   const channel = socket.channel('table:' + id, {});
   channel.join()
     .receive('ok', resp => {
-      console.log('joined', resp);
-      dispatch({ type: 'TABLE_CONNECT', username: username, table: resp.data, channel: channel })
+      dispatch({ type: 'TABLE_JOIN', username: username, table: resp.data, channel: channel })
     })
     .receive('error', resp => {
-      console.log('error');
+      console.log('error', resp);
       // TODO put error flash
     });
 }

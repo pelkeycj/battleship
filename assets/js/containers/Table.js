@@ -13,8 +13,11 @@ class Table extends React.Component {
 
   props: Props
   render() {
-    const { table } = this.props.table;
-    const tableName = table.name;
+    const { table, state } = this.props;
+    let tableName = '';
+    if (table) {
+      tableName = table.name;
+    }
 
     return (
       <div>
@@ -27,6 +30,7 @@ class Table extends React.Component {
 export default connect(
   state => ({
     table: state.table.table,
+    state: state,
   }),
   null,
 )(Table);

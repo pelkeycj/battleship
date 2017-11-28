@@ -14,12 +14,9 @@ defmodule BattleshipWeb.TableChannel do
 
   def join("table:" <> id, payload, socket) do
     if authorized?(payload) do
-      with {:ok, %Table{} = table} <- App.get_table!(id) do
-        IO.inspect(table)
-        resp = BattleshipWeb.TableView.render("show.json", %{table: table})
-        IO.inspect(resp)
-        {:ok, socket}
-      end
+      table = App.get_table!(id)
+      resp = BattleshipWeb.TableView.render("show.json", %{table: table})
+      {:ok, resp, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end

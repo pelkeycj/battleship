@@ -16,8 +16,6 @@ export default function(state = initialState, action) {
         channel: action.channel,
       };
     case 'TABLE_JOIN':
-      console.log('action', action);
-      console.log('table', action.table);
       return {
         channel: action.channel,
         table: action.table,
