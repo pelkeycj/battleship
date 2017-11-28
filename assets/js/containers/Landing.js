@@ -7,6 +7,7 @@ import { createAndJoinTable, joinChannel, joinExisting } from '../actions/app';
 
 type Props = {
   channel: Object,
+  user: Object,
   joinChannel: () => void,
   createAndJoinTable: () => void,
   joinExisting: () => void,
@@ -18,7 +19,6 @@ class Landing extends React.Component {
     super(props);
 
     this.state = {
-      username: '',
       tableName: '',
       joinCode: '',
     };
@@ -33,14 +33,15 @@ class Landing extends React.Component {
 
   handleCreate(e) {
     e.preventDefault();
-    const { username, tableName } = this.state;
+    const { tableName } = this.state;
+    const { user } = this.props;
     const params = {
-      username,
+      user,
       tableName,
     };
 
 
-    if (username && tableName) {
+    if (user && tableName) {
       this.props.createAndJoinTable(this.props.channel, params, this.context.router);
     } else {
       // TODO put flash error
@@ -51,16 +52,18 @@ class Landing extends React.Component {
     // TODO probably need to send the router to create and join
   handleJoin(e) {
     e.preventDefault();
-    const { username, joinCode } = this.state;
+    const { joinCode } = this.state;
+    const { user } = this.props;
+
     const params = {
-      username,
+      user,
       joinCode,
     };
 
-    if (username && joinCode) {
+    if (user && joinCode) {
       this.props.joinExisting(params, this.context.router);
     } else {
-      console.log('error: invalid username or join code');
+      console.log('error: invalid user or join code');
     }
   }
 
@@ -71,14 +74,6 @@ class Landing extends React.Component {
       <Row>
         <Col md={8} offset={{ md: 2 }} >
           <form>
-            <FormGroup id="username">
-            <FormControl
-              type="text"
-              placeholder="Username"
-              onChange={(e) => this.setState({ username: e.target.value })}
-
-            />
-            </FormGroup>
 
             <FormGroup id="table-code">
               <FormControl
@@ -118,6 +113,7 @@ Landing.contextTypes = {
 
 export default connect(
   (state) => ({
+    user: state.user.user,
     channel: state.table.channel,
   }),
   { createAndJoinTable, joinChannel, joinExisting },

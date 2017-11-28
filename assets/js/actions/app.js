@@ -32,7 +32,7 @@ export function createAndJoinTable(lobby, params, router) {
   return (dispatch) => {
     lobby.push('create_table', params)
       .receive('ok', resp => {
-        joinTable(dispatch, resp.data.id, params.username);
+        joinTable(dispatch, resp.data.id, params.user);
         router.history.push('/table');
       })
       .receive('error', resp => {
@@ -44,18 +44,17 @@ export function createAndJoinTable(lobby, params, router) {
 
 export function joinExisting(params, router) {
   return (dispatch) => {
-    joinTable(dispatch, params.joinCode, params.username);
+    joinTable(dispatch, params.joinCode, params.user);
     router.history.push('/table');
   }
 }
 
-function joinTable(dispatch, id, username = "anon") {
+function joinTable(dispatch, id, user = null) {
   const socket = new Socket('/socket', {});
   socket.connect();
-  const channel = socket.channel('table:' + id, {});
+  const channel = socket.channel('table:' + id, {user: user});
   channel.join()
     .receive('ok', resp => {
-      setUser(dispatch, channel, username);
       dispatch({ type: 'TABLE_JOIN', table: resp.data, channel: channel })
     })
     .receive('error', resp => {
@@ -64,14 +63,17 @@ function joinTable(dispatch, id, username = "anon") {
     });
 }
 
-function setUser(dispatch, channel, username) {
-  let user;
-  channel.push('create_user', { username })
-    .receive('ok', resp => {
-      dispatch({ type: 'SET_USER', user: resp.data });
-    })
-    .receive('error', resp => {
-      // TODO put flash
-      console.log('error', resp);
-    });
+export function signin(channel, username, router) {
+  return (dispatch) => {
+    channel.push('create_user', { username })
+      .receive('ok', resp => {
+        console.log('setting user');
+        dispatch({ type: 'SET_USER', user: resp.data });
+        router.history.push('/home');
+      })
+      .receive('error', resp => {
+        // TODO put flash
+        console.log('error', resp);
+      });
+  }
 }
