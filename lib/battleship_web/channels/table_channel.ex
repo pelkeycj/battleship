@@ -1,13 +1,10 @@
 defmodule BattleshipWeb.TableChannel do
   use BattleshipWeb, :channel
 
-  alias Battleship.App
-  alias Battleship.App.Table
-  alias BattleshipWeb.TableView
-  alias Battleship.Presence
-  alias Battleship.Account
+  alias Battleship.{App, Presence, Account}
+  alias BattleshipWeb.{TableView, UserView}
   alias Battleship.Account.User
-  alias BattleshipWeb.UserView
+  alias Battleship.App.Table
 
   def join("table:lobby", payload, socket) do
     if authorized?(payload) do
@@ -18,6 +15,7 @@ defmodule BattleshipWeb.TableChannel do
   end
 
   def join("table:" <> id, payload, socket) do
+    socket = assign(socket, :user, payload["user"]) # track user id
     send(self(), :after_join) # track info
     if authorized?(payload) do
       table = App.get_table!(id)
@@ -35,8 +33,6 @@ defmodule BattleshipWeb.TableChannel do
     end
   end
 
-  #TODO this should be in a different channel (user_channel?)
-  # but given the timeline it'll stay here for ease of use
   def handle_in("create_user", payload, socket) do
     with {:ok, %User{} = user} <- Account.create_user(%{name: payload["username"]}) do
       resp = UserView.render("show.json", %{user: user})
@@ -64,14 +60,12 @@ defmodule BattleshipWeb.TableChannel do
 
 
   def handle_info(:after_join, socket) do
-    IO.puts("Handling presence")
+    push(socket, "presence_state", Presence.list(socket))
+    {:ok, _} = Presence.track(socket, socket.assigns.user["id"], %{
+      joined_at: System.system_time(:seconds),
+      username: socket.assigns.user["name"]
+    })
     {:noreply, socket}
-    #TODO: need to create user resource
   end
 
 end
-
-
-# Users join the lobby channel first. Then can create a table,
-# with a table ID as the response (join code). The user then joins the specified
-# table channel. Use presence to get list of all connected users?

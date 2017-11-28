@@ -1,6 +1,11 @@
 import { Socket } from 'phoenix';
 
+// TODO user should join unique channel?
+    // For challenges, etc
 // TODO handle incoming messages
+
+// TODO on join get all current presences, track in state,
+// update on presence_diff event
 
 export function getSocket() {
   return dispatch => {
@@ -61,6 +66,8 @@ function joinTable(dispatch, id, user = null) {
       console.log('error', resp);
       // TODO put error flash
     });
+
+  channel.on('presence_diff', msg => console.log('presence_diff', msg));
 }
 
 export function signin(channel, username, router) {

@@ -49,7 +49,6 @@ class Landing extends React.Component {
     }
   }
 
-    // TODO probably need to send the router to create and join
   handleJoin(e) {
     e.preventDefault();
     const { joinCode } = this.state;
