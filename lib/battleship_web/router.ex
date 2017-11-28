@@ -20,7 +20,8 @@ defmodule BattleshipWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", BattleshipWeb do
-  #   pipe_through :api
-  # end
+   scope "/api", BattleshipWeb do
+     pipe_through :api
+     resources "/tables", TableController, except: [:new, :edit]
+  end
 end

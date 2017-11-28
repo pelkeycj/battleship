@@ -1,11 +1,21 @@
 defmodule BattleshipWeb.TableChannel do
   use BattleshipWeb, :channel
 
+  alias Battleship.App
+
   def join("table:lobby", payload, socket) do
     if authorized?(payload) do
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
+    end
+  end
+
+  # create a table and return its id (join code)
+  def handle_in("create_table", payload, socket) do
+    IO.inspect(payload)
+    with {:ok, %Table{} = table} <- App.create_table(payload["table_name"]) do
+      {:reply, {:ok, table.id}, socket}
     end
   end
 
@@ -26,6 +36,7 @@ defmodule BattleshipWeb.TableChannel do
   defp authorized?(_payload) do
     true
   end
+
 end
 
 
