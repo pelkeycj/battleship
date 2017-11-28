@@ -5,6 +5,9 @@ defmodule BattleshipWeb.TableChannel do
   alias Battleship.App.Table
   alias BattleshipWeb.TableView
   alias Battleship.Presence
+  alias Battleship.Account
+  alias Battleship.Account.User
+  alias BattleshipWeb.UserView
 
   def join("table:lobby", payload, socket) do
     if authorized?(payload) do
@@ -25,10 +28,18 @@ defmodule BattleshipWeb.TableChannel do
     end
   end
 
-  # create a table and return its id (join code)
   def handle_in("create_table", payload, socket) do
     with {:ok, %Table{} = table} <- App.create_table(%{name: payload["tableName"]}) do
       resp = TableView.render("show.json", %{table: table})
+      {:reply, {:ok, resp}, socket}
+    end
+  end
+
+  #TODO this should be in a different channel (user_channel?)
+  # but given the timeline it'll stay here for ease of use
+  def handle_in("create_user", payload, socket) do
+    with {:ok, %User{} = user} <- Account.create_user(%{name: payload["username"]}) do
+      resp = UserView.render("show.json", %{user: user})
       {:reply, {:ok, resp}, socket}
     end
   end
@@ -54,7 +65,8 @@ defmodule BattleshipWeb.TableChannel do
 
   def handle_info(:after_join, socket) do
     IO.puts("Handling presence")
-    #TODO: need to create user resource 
+    {:noreply, socket}
+    #TODO: need to create user resource
   end
 
 end

@@ -2,7 +2,6 @@ const initialState = {
   socket: null,
   channel: null,
   table: null,
-  username: null,
 };
 
 export default function(state = initialState, action) {
@@ -19,7 +18,6 @@ export default function(state = initialState, action) {
       return {
         channel: action.channel,
         table: action.table,
-        username: action.username,
       };
     default:
       return state;

@@ -24,5 +24,6 @@ defmodule BattleshipWeb.Router do
    scope "/api", BattleshipWeb do
      pipe_through :api
      resources "/tables", TableController, except: [:new, :edit]
+     resources "/users", UserController, except: [:new, :edit]
   end
 end

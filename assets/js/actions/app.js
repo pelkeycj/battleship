@@ -49,16 +49,29 @@ export function joinExisting(params, router) {
   }
 }
 
-function joinTable(dispatch, id, username = null) {
+function joinTable(dispatch, id, username = "anon") {
   const socket = new Socket('/socket', {});
   socket.connect();
   const channel = socket.channel('table:' + id, {});
   channel.join()
     .receive('ok', resp => {
-      dispatch({ type: 'TABLE_JOIN', username: username, table: resp.data, channel: channel })
+      setUser(dispatch, channel, username);
+      dispatch({ type: 'TABLE_JOIN', table: resp.data, channel: channel })
     })
     .receive('error', resp => {
       console.log('error', resp);
       // TODO put error flash
+    });
+}
+
+function setUser(dispatch, channel, username) {
+  let user;
+  channel.push('create_user', { username })
+    .receive('ok', resp => {
+      dispatch({ type: 'SET_USER', user: resp.data });
+    })
+    .receive('error', resp => {
+      // TODO put flash
+      console.log('error', resp);
     });
 }

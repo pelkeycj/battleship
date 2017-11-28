@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 
 type Props = {
   table: Object,
+  user: Object,
 }
 
 const styles = StyleSheet.create({
@@ -25,10 +26,14 @@ class Table extends React.Component {
 
   props: Props
   render() {
-    const { table, state } = this.props;
+    const { table, user } = this.props;
     let tableName = '';
     if (table) {
       tableName = table.name;
+    }
+    let username = '';
+    if (user) {
+      username = user.name;
     }
 
     return (
@@ -49,8 +54,8 @@ class Table extends React.Component {
 
 export default connect(
   state => ({
+    user: state.user.user,
     table: state.table.table,
-    state: state,
   }),
   null,
 )(Table);
