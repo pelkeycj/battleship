@@ -2,7 +2,7 @@ import React from 'react';
 import { Row, Col } from 'react-grid-system';
 import { FormGroup, ControlLabel, FormControl, HelpBlock, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { getSocket, joinTableChannel } from '../actions/app';
+import { createAndJoinTable, joinChannel, joinExisting } from '../actions/app';
 
 //TODO handle submits
   // app joins a general channel?
@@ -12,25 +12,70 @@ import { getSocket, joinTableChannel } from '../actions/app';
 
 //TODO create channel, table resource
   // users will join a channel for the table_id
-  // use presence to track users?
+  // use presence to tracksusers?
 
   // PRIORITY 1: USERS JOIN TABLES AND chat/ see list of users
 
+//TODO form values on submit
+
 type Props = {
-  socket: Object,
-  getSocket: () => void,
-  joinTableChannel: () => void,
+  channel: Object,
+  joinChannel: () => void,
+  createAndJoinTable: () => void,
+  joinExisting: () => void,
 }
 
 class Landing extends React.Component {
+  constructor(props) {
+    super(props);
 
-  componentWillMount() {
-    //this.props.getSocket();
-    this.props.joinTableChannel('lobby');
+    this.state = {
+      username: '',
+      tableName: '',
+      joinCode: '',
+    };
+
+    this. handleCreate = this.handleCreate.bind(this);
+    this.handleJoin = this.handleJoin.bind(this);
   }
 
-  // TODO submission to join a table/create a table
-  // table name field?
+  componentWillMount() {
+    this.props.joinChannel('lobby');
+  }
+
+  handleCreate(e) {
+    e.preventDefault();
+    const { username, tableName } = this.state;
+    const params = {
+      username,
+      tableName,
+    };
+
+
+    if (username && tableName) {
+      this.props.createAndJoinTable(this.props.channel, params);
+    } else {
+      console.log('error: invalid username or tablename');
+    }
+  }
+
+  // TODO fix joinTable to take a username?
+    // TODO probably need to send the router to create and join
+  handleJoin(e) {
+    e.preventDefault();
+    const { username, joinCode } = this.state;
+    const params = {
+      username,
+      joinCode,
+    };
+
+    if (username && joinCode) {
+      this.props.joinExisting(params);
+    } else {
+      console.log('error: invalid username or join code');
+    }
+  }
+
 
   render() {
     return (
@@ -39,24 +84,35 @@ class Landing extends React.Component {
           <form>
             <FormGroup id="username">
             <FormControl
-            type="text"
-            placeholder="Username"
+              type="text"
+              placeholder="Username"
+              onChange={(e) => this.setState({ username: e.target.value })}
+
             />
             </FormGroup>
 
             <FormGroup id="table-code">
               <FormControl
-              type="text"
-              placeholder="Join Code"
+                type="text"
+                placeholder="Join Code"
+                onChange={(e) => this.setState({ joinCode: e.target.value })}
               />
             </FormGroup>
 
-            <Button type="submit">
+            <Button type="submit" onClick={this.handleJoin}>
               Join Table
             </Button>
 
             <p>or</p>
-            <Button type="submit">
+            <FormGroup id="table-name">
+              <FormControl
+                type="text"
+                placeholder="Table Name"
+                onChange={(e) => this.setState({ tableName: e.target.value })}
+
+              />
+            </FormGroup>
+            <Button type="submit" onClick={this.handleCreate}>
               Create Table
             </Button>
           </form>
@@ -67,10 +123,9 @@ class Landing extends React.Component {
 }
 
 
-
 export default connect(
   (state) => ({
-    socket: state.table.socket,
+    channel: state.table.channel,
   }),
-  { getSocket, joinTableChannel },
+  { createAndJoinTable, joinChannel, joinExisting },
 )(Landing);

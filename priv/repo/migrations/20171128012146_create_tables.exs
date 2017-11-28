@@ -3,9 +3,9 @@ defmodule Battleship.Repo.Migrations.CreateTables do
 
   def change do
     create table(:tables) do
+      add :name, :string
 
       timestamps()
     end
-
   end
 end
