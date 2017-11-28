@@ -1,22 +1,9 @@
 import React from 'react';
 import { Row, Col } from 'react-grid-system';
+import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl, HelpBlock, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { createAndJoinTable, joinChannel, joinExisting } from '../actions/app';
-
-//TODO handle submits
-  // app joins a general channel?
-    // send CREATE_TABLE/ JOIN TABLE down channel with params
-    // and then join?
-    // on app mount we need to create socket and join channel general
-
-//TODO create channel, table resource
-  // users will join a channel for the table_id
-  // use presence to tracksusers?
-
-  // PRIORITY 1: USERS JOIN TABLES AND chat/ see list of users
-
-//TODO form values on submit
 
 type Props = {
   channel: Object,
@@ -26,6 +13,7 @@ type Props = {
 }
 
 class Landing extends React.Component {
+
   constructor(props) {
     super(props);
 
@@ -53,13 +41,13 @@ class Landing extends React.Component {
 
 
     if (username && tableName) {
-      this.props.createAndJoinTable(this.props.channel, params);
+      this.props.createAndJoinTable(this.props.channel, params, this.context.router);
     } else {
+      // TODO put flash error
       console.log('error: invalid username or tablename');
     }
   }
 
-  // TODO fix joinTable to take a username?
     // TODO probably need to send the router to create and join
   handleJoin(e) {
     e.preventDefault();
@@ -70,12 +58,13 @@ class Landing extends React.Component {
     };
 
     if (username && joinCode) {
-      this.props.joinExisting(params);
+      this.props.joinExisting(params, this.context.router);
     } else {
       console.log('error: invalid username or join code');
     }
   }
 
+  props: Props
 
   render() {
     return (
@@ -121,6 +110,10 @@ class Landing extends React.Component {
     );
   }
 }
+
+Landing.contextTypes = {
+  router: PropTypes.object,
+};
 
 
 export default connect(

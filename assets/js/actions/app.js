@@ -28,33 +28,36 @@ export function joinChannel(name) {
   }
 }
 
-
-export function createAndJoinTable(lobby, params) {
+// TODO router
+export function createAndJoinTable(lobby, params, router) {
   return (dispatch) => {
     lobby.push('create_table', params)
       .receive('ok', resp => {
         joinTable(dispatch, resp.data.id, params.username);
+        router.history.push('/table');
       })
       .receive('error', resp => {
+        console.log('error: could not create table');
         // TODO put error flash
       });
   }
 }
 
-export function joinExisting(params) {
+// TODO router
+export function joinExisting(params, router) {
   return (dispatch) => {
-    joinTable(dispatch, params.joinCode, params.username)
+    joinTable(dispatch, params.joinCode, params.username);
+    router.history.push('/table');
   }
 }
 
-//TODO pass username through
 function joinTable(dispatch, id, username = null) {
   const socket = new Socket('/socket', {});
   socket.connect();
   const channel = socket.channel('table:' + id, {});
   channel.join()
     .receive('ok', resp => {
-      console.log('joined', id);
+      console.log('joined', resp);
       dispatch({ type: 'TABLE_CONNECT', username: username, table: resp.data, channel: channel })
     })
     .receive('error', resp => {

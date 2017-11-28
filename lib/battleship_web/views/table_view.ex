@@ -11,6 +11,6 @@ defmodule BattleshipWeb.TableView do
   end
 
   def render("table.json", %{table: table}) do
-    %{id: table.id}
+    %{id: table.id, name: table.name}
   end
 end
