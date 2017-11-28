@@ -14,6 +14,8 @@ defmodule Battleship.Application do
       supervisor(BattleshipWeb.Endpoint, []),
       # Start your own worker by calling: Battleship.Worker.start_link(arg1, arg2, arg3)
       # worker(Battleship.Worker, [arg1, arg2, arg3]),
+
+      supervisor(Battleship.Presence, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
