@@ -1,12 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
-import { sendMsg } from '../actions/app';
+import { sendMsg, acceptChallenge } from '../actions/app';
 import MsgForm from '../components/MsgForm';
 import MessageShow from '../components/MessageShow';
 
 type Props = {
   sendMsg: () => void,
+  acceptChallenge: () => void,
   user: Object,
   messages: Object,
   channel: Object,
@@ -17,10 +19,15 @@ class ChatPanel extends React.Component {
     super();
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleAccept = this.handleAccept.bind(this);
   }
 
   handleSubmit(params) {
     this.props.sendMsg(this.props.channel, params);
+  }
+
+  handleAccept(params) {
+    this.props.acceptChallenge(this.props.channel, params);
   }
 
   props: Props
@@ -34,7 +41,7 @@ class ChatPanel extends React.Component {
     }
 
     messages = messages.map(msg => {
-      return <MessageShow message={msg} />
+      return <MessageShow user={user} message={msg} handleAccept={this.handleAccept} />
     });
 
     return (
@@ -57,5 +64,5 @@ export default connect(
     messages: state.table.messages,
     channel: state.table.channel,
   }),
-  { sendMsg },
+  { sendMsg, acceptChallenge },
 )(ChatPanel);

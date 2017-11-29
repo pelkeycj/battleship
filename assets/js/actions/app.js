@@ -59,8 +59,9 @@ function joinTable(dispatch, id, user = null, router) {
       // TODO put error flash
     });
 
-  setActions(dispatch, channel);
+  setTableActions(dispatch, channel);
 }
+
 
 export function signin(channel, username, router) {
   return (dispatch) => {
@@ -84,6 +85,31 @@ export function sendMsg(channel, msg) {
   }
 }
 
+export function issueChallenge(channel, payload, router, user) {
+  return (dispatch) => {
+    channel.push('issue_challenge', payload)
+      .receive('ok', resp => console.log('challenge sent', resp))
+      .receive('error', resp => console.log('challenge failed', resp));
+
+    //TODO route
+    channel.on('challenge_accepted', msg => {
+      if (msg.from_id == user.id) {
+        //TODO start game
+        //TODO route
+      }
+    })
+  }
+}
+
+export function acceptChallenge(channel, payload) {
+  //TODO strip message of meta
+  return (dispatch) => {
+    channel.push('accept_challenge', payload)
+      .receive('ok', resp => dispatch({ type: 'ACCEPTED_CHALLENGE', payload }))
+      .receive('error', resp => console.log('error pushing accept', resp));
+  }
+}
+
 // reduce complexity of structure to just a map for each user
 function processPresenceStateResp(presenceState) {
   let users = [];
@@ -95,7 +121,7 @@ function processPresenceStateResp(presenceState) {
   return users;
 }
 
-function setActions(dispatch, channel) {
+function setTableActions(dispatch, channel) {
   channel.on('presence_diff', msg => {
     dispatch({ type: 'PRESENCE_DIFF', joins: processPresenceStateResp(msg.joins)
       , leaves: processPresenceStateResp(msg.leaves) });
@@ -108,5 +134,18 @@ function setActions(dispatch, channel) {
 
   channel.on('new_msg', msg => {
     dispatch({ type: 'NEW_MSG', message: msg});
+  });
+
+  channel.on('challenge_issued', msg => {
+    console.log('challenge_issued', msg);
+    const challenge_msg = {
+      username: '[INFO]',
+      text: msg.from_name + ' has challenged ' + msg.to_name + '!',
+      meta: {
+        type: 'CHALLENGE',
+        params: msg,
+      }
+    };
+    dispatch({ type: 'NEW_MSG', message: challenge_msg })
   });
 }
