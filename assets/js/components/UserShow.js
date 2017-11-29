@@ -1,3 +1,19 @@
-/**
- * Created by connor on 11/28/17.
- */
+import React from 'react';
+
+type Props = {
+  user: Object,
+}
+class UserShow extends React.Component {
+  props: Props
+
+  render() {
+    const { user } = this.props;
+    return (
+      <div>
+        <p>{user.name}</p>
+      </div>
+    )
+  }
+}
+
+export default UserShow;

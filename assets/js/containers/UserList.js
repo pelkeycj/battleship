@@ -1,27 +1,49 @@
 import React from 'react';
-import UserBlock from '../components/UserBlock';
+import { connect } from 'react-redux';
+import UserShow from '../components/UserShow';
 
 type Props = {
   users: Object,
 }
 
 class UserList extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      users: [],
+    };
+  }
   props: Props
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ users: nextProps.users });
+    this.forceUpdate();
+  }
+
   render() {
-    const { users } = this.props;
-    console.log('users list ', users);
+    let { users } = this.state;
+    if (!users) {
+      users = [];
+    }
+
+    users = users.map(user => {
+      return <UserShow user={user} />
+    });
+
     return (
       <div>
         <h3>Users</h3>
         <div>
-          {users && users.map(user => {
-            return <p key={user.id}>{user.name}</p>
-          })}
+          {users}
         </div>
       </div>
     )
   }
 }
 
-export default UserList;
+export default connect(
+  state => ({
+    users: state.table.users,
+  }),
+  null,
+)(UserList);

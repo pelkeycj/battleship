@@ -19,8 +19,12 @@ defmodule BattleshipWeb.TableChannel do
     send(self(), :after_join) # track info
     if authorized?(payload) do
       table = App.get_table!(id)
-      resp = TableView.render("show.json", %{table: table})
-      {:ok, resp, socket}
+      if table do
+        resp = TableView.render("show.json", %{table: table})
+        {:ok, resp, socket}
+      else
+        {:error, %{reason: "invalid code"}}
+      end
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -40,17 +44,9 @@ defmodule BattleshipWeb.TableChannel do
     end
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  def handle_in("ping", payload, socket) do
+  def handle_in("new_msg", payload, socket) do
+    broadcast(socket, "new_msg", payload)
     {:reply, {:ok, payload}, socket}
-  end
-
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (table:lobby).
-  def handle_in("shout", payload, socket) do
-    broadcast socket, "shout", payload
-    {:noreply, socket}
   end
 
   # Add authorization logic here as required.
@@ -63,7 +59,7 @@ defmodule BattleshipWeb.TableChannel do
     push(socket, "presence_state", Presence.list(socket))
     {:ok, _} = Presence.track(socket, socket.assigns.user["id"], %{
       joined_at: System.system_time(:seconds),
-      username: socket.assigns.user["name"]
+      name: socket.assigns.user["name"]
     })
     {:noreply, socket}
   end

@@ -3,12 +3,16 @@ import React from 'react';
 import { css, StyleSheet } from 'aphrodite';
 import { Row, Col } from 'react-grid-system';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { handlePresenceDiff, handlePresenceState } from '../actions/app';
+import UserList from './UserList';
+import ChatPanel from './ChatPanel';
 
-// Table has users, messages(Message component to render)
 
 type Props = {
   table: Object,
   user: Object,
+  users: Object,
 }
 
 const styles = StyleSheet.create({
@@ -23,13 +27,15 @@ const styles = StyleSheet.create({
 });
 
 class Table extends React.Component {
-
   props: Props
+
   render() {
-    const { table, user } = this.props;
+    const { table, user, users } = this.props;
     let tableName = '';
+    let joinCode = '';
     if (table) {
       tableName = table.name;
+      joinCode = table.id;
     }
     let username = '';
     if (user) {
@@ -38,13 +44,18 @@ class Table extends React.Component {
 
     return (
       <div>
-        <h1 className={css(styles.header)}>{'Table: ' + tableName}</h1>
+        <div  className={css(styles.header)}>
+          <h1>{'Table: ' + tableName}</h1>
+          <p>{'Join Code: ' + joinCode}</p>
+        </div>
         <Row>
           <Col md={4} className={css(styles.users)}>
-            <h3>Users</h3>
+            <Scrollbars style={{ height: '500px' }}>
+              <UserList users={users} />
+            </Scrollbars>
           </Col>
           <Col md={8}>
-            <h3>Chat</h3>
+            <ChatPanel />
           </Col>
         </Row>
       </div>
@@ -56,6 +67,7 @@ export default connect(
   state => ({
     user: state.user.user,
     table: state.table.table,
+    users: state.table.users,
   }),
-  null,
+  { handlePresenceDiff, handlePresenceState },
 )(Table);
