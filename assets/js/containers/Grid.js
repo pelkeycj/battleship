@@ -135,7 +135,7 @@ class Grid extends React.Component {
     let params;
     if (status === 'PLACING' && is_user) {
       const params = {
-        ship: { orientation, size },
+        ship: { orientation, size, coords: { row, col }, },
         id: player.id + '',
       };
       this.props.handleClick(params);

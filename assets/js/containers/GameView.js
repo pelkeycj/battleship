@@ -32,6 +32,11 @@ class GameView extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    console.log('current', this.props);
+    console.log('next', nextProps);
+  }
+
   render() {
     const { game, user, player, opponent, status, ships_to_place } = this.props;
 

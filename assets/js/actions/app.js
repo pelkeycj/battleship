@@ -154,7 +154,8 @@ function processPresenceStateResp(presenceState) {
 
 function setGameActions(dispatch, channel) {
   channel.on('new_game_state', msg => {
-    dispatch({ type: 'SET_GAME_STATE', game: msg });
+    console.log('new game state', msg);
+    dispatch({ type: 'SET_GAME_STATE', resp: msg });
   });
 
   channel.on('new_game_status', msg => {
