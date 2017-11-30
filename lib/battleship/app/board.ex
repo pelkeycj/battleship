@@ -13,6 +13,7 @@ defmodule Battleship.App.Board do
       id: String.to_integer(id),
       name: name,
       grid: make_water_grid(),
+      ships_to_place: list_all_ships(),
     }
   end
 
@@ -29,6 +30,7 @@ defmodule Battleship.App.Board do
   # replaces a boards grid with a sanitized one
   def sanitize(board) do
     Map.update!(board, :grid, &(sanitize_grid(&1)))
+    |> Map.drop([:ships_to_place])
   end
 
   # returns a new grid containing only hits and unknowns

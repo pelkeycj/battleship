@@ -25,6 +25,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 
+  padBlock: {
+    height: '200px',
+  },
+
 });
 
 
@@ -33,19 +37,21 @@ type Props = {
   player: Object,
   status: string,
   ships_to_place: Object,
+  handleClick(): () => void,
 }
 
 class Grid extends React.Component {
   constructor() {
     super();
+
+    this.state = {
+      orientation: 'vertical',
+    };
+
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getInstructionText = this.getInstructionText.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
-
-  //TODO handle clicks (depending on status)
-    // add ship
-    // attack
-  // ONLY if is_user == true
 
   getDisplayText() {
     let text;
@@ -58,9 +64,13 @@ class Grid extends React.Component {
   }
 
   getInstructionText() {
+    if (!this.props.is_user) {
+      return '';
+    }
+
     switch (this.props.status) {
       case 'PLACING':
-        return 'Place your ships by selecting a tile. Ships can be placed horizontally or' +
+        return 'Place your ships by selecting a tile. Ships can be placed horizontally or ' +
           'vertically, but cannot be removed once placed.';
       case 'ATTACK':
         return 'Attack your opponent by selecting a cell on their grid to strike.';
@@ -68,6 +78,12 @@ class Grid extends React.Component {
         return 'Waiting on opponent . . .';
       default:
         return '';
+    }
+  }
+
+  getShipSize(ships) {
+    if (ships && ships[0]) {
+      return ships[0];
     }
   }
 
@@ -93,7 +109,7 @@ class Grid extends React.Component {
           {rowIdx}
         </div>
         {row.map((symbol, colIdx) => {
-          return <Cell symbol={symbol} row={rowIdx} col={colIdx} />
+          return <Cell handleClick={this.handleClick} symbol={symbol} row={rowIdx} col={colIdx} />
         })}
       </div>
     );
@@ -111,13 +127,53 @@ class Grid extends React.Component {
     );
   }
 
+  handleClick(row, col) {
+    const { status, is_user, player, ships_to_place } = this.props;
+    const size = this.getShipSize(ships_to_place);
+    const { orientation } = this.state;
+
+    let params;
+    if (status === 'PLACING' && is_user) {
+      const params = {
+        ship: { orientation, size },
+        id: player.id + '',
+      };
+      this.props.handleClick(params);
+    }
+    //TODO attack (if not user)
+  }
+
+  props: Props
+
   render() {
-    const { player, status, is_user } = this.props;
-    console.log('player', player);
-    const text = this.getDisplayText();
+    const { player, status, is_user, ships_to_place } = this.props;
+    const { orientation } = this.state;
+
     return (
       <div>
-        <p>{text}</p>
+        <div className={css(styles.padBlock)}>
+          <p>{this.getDisplayText()}</p>
+          <p>{this.getInstructionText()}</p>
+        {ships_to_place &&
+          <div>
+            <p>{'Orientation: ' + orientation}</p>
+            <p>{'Ship size: ' + this.getShipSize(ships_to_place)}</p>
+            <button style={{display: 'inline'}}
+                    onClick={e => {
+                      e.preventDefault();
+                      this.setState({ orientation: 'horizontal' });
+                    }}>
+              Horizontal
+            </button>
+            <button style={{display: 'inline'}}
+                    onClick={e => {
+                      e.preventDefault();
+                      this.setState({orientation: 'vertical'});
+                    }}>
+              Vertical</button>
+          </div>
+        }
+        </div>
         {this.buildGrid(player.grid)}
       </div>
     )

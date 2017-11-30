@@ -1,4 +1,5 @@
 import { Socket } from 'phoenix';
+//TODO refactor to move functions to separate files
 
 export function getSocket() {
   return dispatch => {
@@ -91,10 +92,9 @@ export function issueChallenge(channel, payload, router, user) {
       .receive('ok', resp => console.log('challenge sent', resp))
       .receive('error', resp => console.log('challenge failed', resp));
 
-    //TODO join game channel?
     channel.on('challenge_accepted', msg => {
       if (msg.from_id == user.id) {
-        joinGameChannel(dispatch, { id: user.id, params: payload });
+        joinGameChannel(dispatch, { id: user.id, params: payload }, user.id);
         router.history.push('/game');
       }
     })
@@ -106,31 +106,39 @@ export function acceptChallenge(channel, payload, router, user) {
     channel.push('accept_challenge', payload)
       .receive('ok', resp => {
         dispatch({ type: 'ACCEPTED_CHALLENGE', payload });
-        joinGameChannel(dispatch, { id: user.id, params: payload });
+        joinGameChannel(dispatch, { id: user.id, params: payload }, user.id);
         router.history.push('/game');
       })
       .receive('error', resp => console.log('error pushing accept', resp));
   }
 }
 
-function joinGameChannel(dispatch, payload) {
+export function placeShip(channel, payload) {
+  return (dispatch) => {
+    channel.push('place_ship', payload)
+      .receive('ok', resp => console.log('placed', resp))
+      .receive('error', resp => console.log('error placing', resp));
+  }
+}
+
+function joinGameChannel(dispatch, payload, id) {
   const game_id = payload.params.from_id + ':' + payload.params.to_id;
-  console.log('game_id', game_id);
+  payload["game_id"] = game_id;
 
   const socket = new Socket('/socket', {});
   socket.connect();
 
-  const channel = socket.channel('game:' + game_id, payload);
+  const channel = socket.channel('game:' + id, payload);
 
   channel.join()
     .receive('ok', resp => {
-      dispatch({ type: 'JOIN_GAME_CHANNEL', resp })
+      setGameActions(dispatch, channel);
+      dispatch({ type: 'JOIN_GAME_CHANNEL', resp, channel })
     })
     .receive('error', resp => {
       console.log('error', resp);
       //TODO put error flash
     });
-
 }
 
 // reduce complexity of structure to just a map for each user
@@ -142,6 +150,16 @@ function processPresenceStateResp(presenceState) {
     users.push(metaMap);
   });
   return users;
+}
+
+function setGameActions(dispatch, channel) {
+  channel.on('new_game_state', msg => {
+    dispatch({ type: 'SET_GAME_STATE', game: msg });
+  });
+
+  channel.on('new_game_status', msg => {
+    dispatch({ type: 'SET_GAME_STATUS', resp});
+  })
 }
 
 function setTableActions(dispatch, channel) {
@@ -160,7 +178,6 @@ function setTableActions(dispatch, channel) {
   });
 
   channel.on('challenge_issued', msg => {
-    console.log('challenge_issued', msg);
     const challenge_msg = {
       username: '[INFO]',
       text: msg.from_name + ' has challenged ' + msg.to_name + '!',

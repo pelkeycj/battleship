@@ -3,13 +3,13 @@ defmodule Battleship.App.Game do
 
   # create a new game
   # params: {from_id, from_name, to_id, to_name}
-  def new(params) do
+  def new(game_id, params) do
     %{
+      game_id: game_id,
       status: "PLACING",
       player1: Board.new(params["to_id"], params["to_name"]),
       player2: Board.new(params["from_id"], params["from_name"]),
       waiting_on: 2,
-      ships_to_place: Board.list_all_ships()
     }
 
   end
@@ -17,11 +17,7 @@ defmodule Battleship.App.Game do
   # returns necessary info for client
   # sanitizes opponent board to known values
   def client_view(game, client_id) do
-    view = %{ status: game.status }
-
-    IO.inspect(game.player1.id)
-    IO.inspect(client_id)
-
+    view = %{ status: game.status, game_id: game.game_id }
 
     # ensure strings
     if game.player1.id == client_id do

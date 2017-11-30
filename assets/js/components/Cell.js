@@ -10,6 +10,10 @@ const styles = StyleSheet.create({
     borderWeight: '1px',
     borderColor: 'black',
     borderStyle: 'solid',
+
+    ':hover': {
+      backgroundColor: 'purple',
+    }
   },
 });
 
@@ -17,6 +21,7 @@ type Props = {
   symbol: string,
   row: number,
   col: number,
+  handleClick: () => void,
 }
 
 class Cell extends React.Component {
@@ -24,6 +29,7 @@ class Cell extends React.Component {
     super();
 
     this.getColor = this.getColor.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   getColor() {
@@ -43,10 +49,18 @@ class Cell extends React.Component {
     }
   }
 
+  handleClick() {
+    const { symbol, col, row } = this.props;
+    if (symbol === '?' || symbol === '~') {
+      this.props.handleClick(row, col);
+    }
+  }
+
+  props: Props
 
   render() {
     return (
-      <div className={css(styles.bodyCell)} style={{ backgroundColor: this.getColor() }}>
+      <div onClick={this.handleClick} className={css(styles.bodyCell)} style={{ backgroundColor: this.getColor() }}>
       </div>
     );
   }

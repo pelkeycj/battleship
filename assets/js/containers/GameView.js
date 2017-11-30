@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Row, Col } from 'react-bootstrap';
 import Grid from './Grid';
 import ChatPanel from './ChatPanel';
+import { placeShip } from '../actions/app';
 
 
 type Props = {
@@ -12,9 +13,24 @@ type Props = {
   opponent: Object,
   status: string,
   ships_to_place: Object,
+  channel: Object,
+  game_id: string,
+  placeShip: () => void,
 }
 
 class GameView extends React.Component {
+  constructor() {
+    super();
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(params) {
+    params["game_id"] = this.props.game_id;
+    const { status, channel, user } = this.props;
+    if (status == 'PLACING' && user.id + '' == params.id) {
+      this.props.placeShip(channel, params);
+    }
+  }
 
   render() {
     const { game, user, player, opponent, status, ships_to_place } = this.props;
@@ -26,13 +42,14 @@ class GameView extends React.Component {
         <Row>
           <Col md={5}>
             {player &&
-              <Grid style={{ width: '100%'}}  player={player}
+              <Grid style={{ width: '100%'}}  player={player} handleClick={this.handleClick}
                     status={status} ships_to_place={ships_to_place} is_user={true} />
             }
           </Col>
           <Col md={5}>
             {opponent &&
-              <Grid style={{ width: '100%'}} player={opponent} status={status} is_user={false} />
+              <Grid style={{ width: '100%'}} player={opponent}  handleClick={this.handleClick}
+                    status={status} is_user={false} />
             }
           </Col>
           <Col md={2}>
@@ -51,6 +68,9 @@ export default connect(
     status: state.game.status,
     player: state.game.player,
     opponent: state.game.opponent,
+    ships_to_place: state.game.ships_to_place,
+    channel: state.game.game_channel,
+    game_id: state.game.game_id,
   }),
-  null,
+  { placeShip },
 )(GameView);
