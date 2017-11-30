@@ -10,7 +10,7 @@ defmodule Battleship.App.Board do
   # a board is a 10x10 grid, initially blank
   def new(id, name) do
     %{
-      id: id,
+      id: String.to_integer(id),
       name: name,
       grid: make_water_grid(),
     }

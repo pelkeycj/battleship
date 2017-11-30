@@ -18,6 +18,12 @@ defmodule Battleship.App.Game do
   # sanitizes opponent board to known values
   def client_view(game, client_id) do
     view = %{ status: game.status }
+
+    IO.inspect(game.player1.id)
+    IO.inspect(client_id)
+
+
+    # ensure strings
     if game.player1.id == client_id do
       view
       |> Map.put(:player, game.player1)

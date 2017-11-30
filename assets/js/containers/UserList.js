@@ -29,9 +29,9 @@ class UserList extends React.Component {
 
   handleChallenge(to_id, to_name) {
     const payload = {
-      from_id: this.props.user.id,
+      from_id: this.props.user.id + '',
       from_name: this.props.user.name,
-      to_id,
+      to_id: to_id + '',
       to_name,
     };
 

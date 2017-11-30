@@ -9,6 +9,7 @@ import MessageShow from '../components/MessageShow';
 type Props = {
   sendMsg: () => void,
   acceptChallenge: () => void,
+  game: Object,
   user: Object,
   messages: Object,
   channel: Object,
@@ -34,7 +35,7 @@ class ChatPanel extends React.Component {
   props: Props
 
   render() {
-    let { messages, user } = this.props;
+    let { messages, user, game } = this.props;
 
     //TODO temp
     if (!messages) {
@@ -42,13 +43,13 @@ class ChatPanel extends React.Component {
     }
 
     messages = messages.map(msg => {
-      return <MessageShow user={user} message={msg} handleAccept={this.handleAccept} />
+      return <MessageShow user={user} show_challenges={!game} message={msg} handleAccept={this.handleAccept} />
     });
 
     return (
       <div>
         <h3>Chat</h3>
-        <Scrollbars style={{ height: '500px' }}>
+        <Scrollbars style={{ height: '400px' }}>
           {messages}
         </Scrollbars>
         {user &&
@@ -66,6 +67,7 @@ ChatPanel.contextTypes = {
 
 export default connect(
   state => ({
+    game: state.game.game,
     user: state.user.user,
     messages: state.table.messages,
     channel: state.table.channel,

@@ -9,6 +9,7 @@ const initialState = {
 export default function(state = initialState, action) {
   switch (action.type) {
     case 'JOIN_GAME_CHANNEL':
+      console.log('joined channel', action.resp);
       return Object.assign({}, state, {
         game: action.resp,
         player: action.resp.player,
