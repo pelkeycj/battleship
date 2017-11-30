@@ -39,6 +39,7 @@ class Grid extends React.Component {
   constructor() {
     super();
     this.getDisplayText = this.getDisplayText.bind(this);
+    this.getInstructionText = this.getInstructionText.bind(this);
   }
 
   //TODO handle clicks (depending on status)
@@ -54,6 +55,20 @@ class Grid extends React.Component {
       text = this.props.player.name + '\'s board';
     }
     return text;
+  }
+
+  getInstructionText() {
+    switch (this.props.status) {
+      case 'PLACING':
+        return 'Place your ships by selecting a tile. Ships can be placed horizontally or' +
+          'vertically, but cannot be removed once placed.';
+      case 'ATTACK':
+        return 'Attack your opponent by selecting a cell on their grid to strike.';
+      case 'WAITING':
+        return 'Waiting on opponent . . .';
+      default:
+        return '';
+    }
   }
 
   buildHeaderRow() {
