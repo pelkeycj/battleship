@@ -37,20 +37,34 @@ defmodule Battleship.App.Game do
   def place_ship(game, %{"id" => id, "ship" => ship}) do
     # match id to player in game
     # in board, place ship, remove from ships_to_place
-    if game.player1.id == id do
-      if Board.can_place?(game.player1.grid, ship["size"], ship["orientation"], ship["coords"]) do
-        Map.update!(game, :player1, fn board -> Board.place_ship(board, ship) end)
+    id = String.to_integer(id)
+    IO.inspect(id)
+    IO.inspect(game.player1.id)
+    IO.inspect(game.player2.id)
+    cond do
+      id == game.player1.id ->
+        IO.puts("player1")
+        if Board.can_place?(game.player1.grid, ship["size"], ship["orientation"], ship["coords"]) do
+          Map.update!(game, :player1, fn board -> Board.place_ship(board, ship) end)
+          #TODO handle waiting, etc
         else
           game
-      end
-    else
-      if Board.can_place?(game.player2.grid, ship["size"], ship["orientation"], ship["coords"]) do
-        Map.update!(game, :player2, fn board -> Board.place_ship(board, ship) end)
-        #TODO handle waiting_on and status
-      else
+        end
+
+      id == game.player2.id ->
+        IO.puts("player2")
+        if Board.can_place?(game.player2.grid, ship["size"], ship["orientation"], ship["coords"]) do
+          Map.update!(game, :player2, fn board -> Board.place_ship(board, ship) end)
+          #TODO handle waiting_on and status
+        else
+          game
+        end
+
+      true ->
+        IO.puts("neither?")
         game
-      end
     end
+
   end
 
 end

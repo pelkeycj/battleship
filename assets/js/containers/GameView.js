@@ -26,8 +26,9 @@ class GameView extends React.Component {
 
   handleClick(params) {
     params["game_id"] = this.props.game_id;
-    const { status, channel, user } = this.props;
-    if (status == 'PLACING' && user.id + '' == params.id) {
+    const { status, channel, user, ships_to_place } = this.props;
+    if (status == 'PLACING' && ships_to_place
+      && (ships_to_place.length > 0) && user.id + '' == params.id) {
       this.props.placeShip(channel, params);
     }
   }

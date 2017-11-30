@@ -17,11 +17,8 @@ defmodule BattleshipWeb.GameChannel do
   #TODO update client state
 
   def handle_in("place_ship", payload, socket) do
-    IO.puts("place_ship")
-    IO.inspect(payload)
-
     game_id = payload["game_id"]
-    user_id = payload["id"]
+    user_id = String.to_integer(payload["id"])
 
     game = GameAgent.get(game_id)
     game = Game.place_ship(game, payload)

@@ -159,7 +159,7 @@ function setGameActions(dispatch, channel) {
   });
 
   channel.on('new_game_status', msg => {
-    dispatch({ type: 'SET_GAME_STATUS', resp});
+    dispatch({ type: 'SET_GAME_STATUS', resp: msg});
   })
 }
 
