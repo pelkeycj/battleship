@@ -91,23 +91,46 @@ export function issueChallenge(channel, payload, router, user) {
       .receive('ok', resp => console.log('challenge sent', resp))
       .receive('error', resp => console.log('challenge failed', resp));
 
-    //TODO route
+    //TODO join game channel?
     channel.on('challenge_accepted', msg => {
       if (msg.from_id == user.id) {
-        //TODO start game
-        //TODO route
+        joinGameChannel(dispatch, { id: user.id, params: payload });
+        router.history.push('/game');
       }
     })
   }
 }
 
-export function acceptChallenge(channel, payload) {
-  //TODO strip message of meta
+export function acceptChallenge(channel, payload, router, user) {
   return (dispatch) => {
     channel.push('accept_challenge', payload)
-      .receive('ok', resp => dispatch({ type: 'ACCEPTED_CHALLENGE', payload }))
+      .receive('ok', resp => {
+        dispatch({ type: 'ACCEPTED_CHALLENGE', payload });
+        joinGameChannel(dispatch, { id: user.id, params: payload });
+        router.history.push('/game');
+      })
       .receive('error', resp => console.log('error pushing accept', resp));
   }
+}
+
+function joinGameChannel(dispatch, payload) {
+  const game_id = payload.params.from_id + ':' + payload.params.to_id;
+  console.log('game_id', game_id);
+
+  const socket = new Socket('/socket', {});
+  socket.connect();
+
+  const channel = socket.channel('game:' + game_id, payload);
+
+  channel.join()
+    .receive('ok', resp => {
+      dispatch({ type: 'JOIN_GAME_CHANNEL', resp })
+    })
+    .receive('error', resp => {
+      console.log('error', resp);
+      //TODO put error flash
+    });
+
 }
 
 // reduce complexity of structure to just a map for each user

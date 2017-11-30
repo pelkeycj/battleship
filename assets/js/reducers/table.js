@@ -59,7 +59,7 @@ export default function(state = initialState, action) {
         state, {messages: [action.message].concat(state.messages)});
     case 'ACCEPTED_CHALLENGE':
       return Object.assign({},
-        state, {messages: stripMeta(state.messages, action.payload)})
+        state, {messages: stripMeta(state.messages, action.payload)});
     default:
       return state;
   }

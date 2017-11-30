@@ -27,7 +27,8 @@ class ChatPanel extends React.Component {
   }
 
   handleAccept(params) {
-    this.props.acceptChallenge(this.props.channel, params);
+    this.props.acceptChallenge(this.props.channel, params,
+      this.context.router, this.props.user);
   }
 
   props: Props
@@ -57,6 +58,11 @@ class ChatPanel extends React.Component {
     );
   }
 }
+
+ChatPanel.contextTypes = {
+  router: PropTypes.object,
+};
+
 
 export default connect(
   state => ({
