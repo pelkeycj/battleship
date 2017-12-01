@@ -53,16 +53,13 @@ defmodule Battleship.App.Board do
   end
 
 
+  #TODO refactor placement, can_place, etc to user get and set grid value funcs
+
   #This assumes that the ship can be placed (can_place? was called)
   # also strips the first ship from the list of ships to place
   def place_ship(board, %{"size" => size, "orientation" => orient, "coords" => coords}) do
-    IO.puts("size")
-    IO.inspect(size)
-    IO.puts("coords")
-    IO.inspect(coords)
-    IO.inspect(board)
     case orient do
-      "horizontal" -> m = Map.update!(board, :grid,
+      "horizontal" -> Map.update!(board, :grid,
                         fn grid ->
                           place_ship(:horizontal, grid, size, coords)
                         end)
@@ -70,9 +67,8 @@ defmodule Battleship.App.Board do
                         fn x ->
                           Enum.drop(x, 1)
                         end)
-                    IO.inspect(m)
-                    m
-      "vertical" -> m = Map.update!(board, :grid,
+
+      "vertical" -> Map.update!(board, :grid,
                       fn grid ->
                         place_ship(:vertical, grid, size, coords)
                       end)
@@ -80,8 +76,6 @@ defmodule Battleship.App.Board do
                          fn x ->
                            Enum.drop(x, 1)
                          end)
-                    IO.inspect(m)
-                    m
     end
   end
 
@@ -106,34 +100,18 @@ defmodule Battleship.App.Board do
     last = coords["row"] + size - 1
     rows = Enum.to_list(first..last) # row indices
 
-    IO.puts("first")
-    IO.inspect(first)
-    IO.puts("last")
-    IO.inspect(last)
-
     rows_before = Enum.slice(grid, 0, first)
     rows_within = Enum.slice(grid, first..last)
     rows_after = Enum.slice(grid, (last+1)..(@grid_size-1))
-    IO.puts("ROWS")
-    IO.inspect(rows_before)
-    IO.inspect(rows_within)
-    IO.inspect(rows_after)
-    IO.puts("END ROWS")
 
     # for each row within, we replace the value at col
     rows_within = Enum.map(rows_within, fn row ->
       List.replace_at(row, coords["col"], @ship)
     end)
 
-    IO.inspect(rows_within)
 
-    result = Enum.concat(rows_before, rows_within)
+    Enum.concat(rows_before, rows_within)
     |> Enum.concat(rows_after)
-
-    IO.puts("result==")
-    IO.inspect(result)
-
-    result
   end
 
 
@@ -150,6 +128,40 @@ defmodule Battleship.App.Board do
         coords["row"] >= 0 && end_location < @grid_size
         && clear_path?(:vertical, grid, size, coords)
     end
+  end
+
+  # can only attack if unkown
+  def can_attack?(board, %{"row" => row, "col" => col}) do
+    val = get_grid_value_at(board.grid, row, col)
+    IO.puts("val:")
+    IO.inspect(val)
+    val == @water || val == @ship
+  end
+
+  def attack(board, %{"row" => row, "col" => col}) do
+    case get_grid_value_at(board.grid, row, col) do
+      @ship ->
+        {:hit, Map.update!(board, :grid, fn x ->
+            set_grid_value_at(board.grid, row, col, @ship_hit)
+          end)
+        }
+      @water ->
+        {:miss, Map.update!(board, :grid, fn x ->
+            set_grid_value_at(board.grid, row, col, @water_hit)
+          end)
+        }
+    end
+  end
+
+  def get_grid_value_at(grid, row, col) do
+    Enum.at(grid, row)
+    |> Enum.at(col)
+  end
+
+  def set_grid_value_at(grid, row, col, val) do
+    r = Enum.at(grid, row)
+    r = List.update_at(r, col, fn _ -> val end)
+    List.update_at(grid, row, fn _ -> r end)
   end
 
   # is the path clear of ships horizontally?

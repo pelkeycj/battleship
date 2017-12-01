@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Row, Col } from 'react-bootstrap';
 import Grid from './Grid';
 import ChatPanel from './ChatPanel';
-import { placeShip } from '../actions/app';
+import { placeShip, attack } from '../actions/app';
 
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
   channel: Object,
   game_id: string,
   placeShip: () => void,
+  attack: () => void,
 }
 
 class GameView extends React.Component {
@@ -25,11 +26,17 @@ class GameView extends React.Component {
   }
 
   handleClick(params) {
+    console.log('game view click handler');
     params["game_id"] = this.props.game_id;
     const { status, channel, user, ships_to_place } = this.props;
     if (status == 'PLACING' && ships_to_place
-      && (ships_to_place.length > 0) && user.id + '' == params.id) {
+      && (ships_to_place.length > 0) && user.id == params.id) {
       this.props.placeShip(channel, params);
+    }
+    else if (status == 'ATTACK') {
+      params["id"] = user.id + '';
+      console.log('attack', params);
+      this.props.attack(channel, params);
     }
   }
 
@@ -78,5 +85,5 @@ export default connect(
     channel: state.game.game_channel,
     game_id: state.game.game_id,
   }),
-  { placeShip },
+  { placeShip, attack },
 )(GameView);

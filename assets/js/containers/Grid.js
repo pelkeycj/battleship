@@ -134,13 +134,20 @@ class Grid extends React.Component {
 
     let params;
     if (status === 'PLACING' && is_user) {
-      const params = {
+      params = {
         ship: { orientation, size, coords: { row, col }, },
         id: player.id + '',
       };
       this.props.handleClick(params);
+
     }
-    //TODO attack (if not user)
+    else if (status === 'ATTACK' && !is_user) {
+      params = {
+        coords: { row, col },
+      };
+      console.log('attacking', params);
+      this.props.handleClick(params);
+    }
   }
 
   props: Props
@@ -154,7 +161,7 @@ class Grid extends React.Component {
         <div className={css(styles.padBlock)}>
           <p>{this.getDisplayText()}</p>
           <p>{this.getInstructionText()}</p>
-        {ships_to_place &&
+        {ships_to_place && ships_to_place.length > 0 &&
           <div>
             <p>{'Orientation: ' + orientation}</p>
             <p>{'Ship size: ' + this.getShipSize(ships_to_place)}</p>

@@ -29,6 +29,9 @@ export default function(state = initialState, action) {
         status: action.resp.status,
         ships_to_place: action.resp.player.ships_to_place,
       });
+    case 'SET_GAME_STATUS':
+      console.log('set status', action);
+      return Object.assign({}, state, { status: action.status});
     default:
       return state;
   }

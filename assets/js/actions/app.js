@@ -121,6 +121,16 @@ export function placeShip(channel, payload) {
   }
 }
 
+export function attack(channel, payload) {
+  console.log('attack');
+  return (dispatch) => {
+    console.log('dispatch attack')
+    channel.push('attack', payload)
+      .receive('ok', resp => console.log('attacked', resp))
+      .receive('error', resp => console.log('error placing', resp))
+  }
+}
+
 function joinGameChannel(dispatch, payload, id) {
   const game_id = payload.params.from_id + ':' + payload.params.to_id;
   payload["game_id"] = game_id;
@@ -159,8 +169,9 @@ function setGameActions(dispatch, channel) {
   });
 
   channel.on('new_game_status', msg => {
-    dispatch({ type: 'SET_GAME_STATUS', resp: msg});
-  })
+    console.log('new_game_status', msg);
+    dispatch({ type: 'SET_GAME_STATUS', status: msg.status});
+  });
 }
 
 function setTableActions(dispatch, channel) {
