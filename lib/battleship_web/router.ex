@@ -19,6 +19,7 @@ defmodule BattleshipWeb.Router do
     get "/", PageController, :index
     get "/table", PageController, :index
     get "/home", PageController, :index
+    get "/game", PageController, :index
   end
 
   # Other scopes may use custom stacks.
