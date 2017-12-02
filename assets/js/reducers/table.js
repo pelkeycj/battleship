@@ -28,6 +28,19 @@ function processDiff(currentUsers, joins, leaves) {
   return users.concat(joins);
 }
 
+function stripMeta(messages, payload) {
+  let newMessages = [];
+  for (var i = 0; i < messages.length; i++) {
+    let m = messages[i];
+    if (messages[i].meta && messages[i].meta.params
+      && (messages[i].meta.params === payload)) {
+      m = { username: m.username, text: m.text };
+    }
+    newMessages.push(m);
+  }
+  return newMessages;
+}
+
 export default function(state = initialState, action) {
   switch (action.type) {
     case 'SOCKET_CONNECT':
@@ -44,6 +57,9 @@ export default function(state = initialState, action) {
     case 'NEW_MSG':
       return Object.assign({},
         state, {messages: [action.message].concat(state.messages)});
+    case 'ACCEPTED_CHALLENGE':
+      return Object.assign({},
+        state, {messages: stripMeta(state.messages, action.payload)});
     default:
       return state;
   }

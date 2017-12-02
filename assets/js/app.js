@@ -7,6 +7,7 @@ import store from './store';
 import Landing from './containers/Landing';
 import Table from './containers/Table';
 import Signin from './containers/Signin';
+import GameView from './containers/GameView';
 
 //TODO restrict routes?
 ReactDOM.render(
@@ -16,6 +17,7 @@ ReactDOM.render(
         <Route exact path="/" component={Signin} />
         <Route exact path="/home" component={Landing}/>
         <Route exact path="/table" component={Table} />
+        <Route exact path="/game" component={GameView} />
       </Switch>
     </BrowserRouter>
   </Provider>,

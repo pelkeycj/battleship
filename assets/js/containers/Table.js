@@ -42,6 +42,7 @@ class Table extends React.Component {
       username = user.name;
     }
 
+    console.log('users:', users);
     return (
       <div>
         <div  className={css(styles.header)}>
