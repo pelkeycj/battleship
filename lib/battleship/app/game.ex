@@ -19,8 +19,8 @@ defmodule Battleship.App.Game do
     %{
       game_id: game.game_id,
       status: "PLACING",
-      player1: Board.clear(player1),
-      player2: Board.clear(player2),
+      player1: Board.clear(game.player1),
+      player2: Board.clear(game.player2),
       winner: "",
       waiting_on: 2
     }
@@ -47,10 +47,8 @@ defmodule Battleship.App.Game do
     id = String.to_integer(id)
     cond do
       id == game.player1.id && Board.can_attack?(game.player2, coords) ->
-        IO.puts("player1")
         attack(game, id, game.player2, coords)
-      id == game.player2.id && Board.can_attack?(game.player1, coords)->
-        IO.puts("player2")
+      id == game.player2.id && Board.can_attack?(game.player1, coords) ->
         attack(game, id, game.player1, coords)
       true -> {:error, game}
     end
@@ -70,9 +68,6 @@ defmodule Battleship.App.Game do
 
 
   def update_board(game, id, board) do
-    IO.puts("update defender board")
-    IO.inspect(id)
-    IO.inspect(board)
     cond do
       id == game.player1.id ->
         Map.update!(game, :player1, fn x -> board end)
@@ -91,7 +86,7 @@ defmodule Battleship.App.Game do
     p2 = Board.all_sunk?(game.player2)
     both = p1 && p2
     cond do
-      game.waiting == 1 ->
+      game.waiting_on == 1 || (!p1 && !p2) ->
         {:false, game}
       both ->
         {:true, set_winner(game, "DRAW")}
@@ -99,13 +94,13 @@ defmodule Battleship.App.Game do
         {:true, set_winner(game, game.player1.name)}
       p2 ->
         {:true, set_winner(game, game.player2.name)}
-      _ -> {:false, game}
+      true -> {:false, game}
     end
   end
 
   def set_winner(game, winner) do
     game
-    |> Map.update!(:status, "GAMEOVER")
+    |> Map.update!(:status, fn x -> "GAMEOVER" end)
     |> Map.update!(:winner, fn _ -> winner end)
   end
 

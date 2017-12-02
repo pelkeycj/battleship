@@ -46,7 +46,9 @@ class UserList extends React.Component {
     }
 
     users = users.map(user => {
+      console.log('user', user);
       if (user.id != this.props.user.id) {
+        console.log('user to be shown');
         return <UserShow key={user.id} user={user} handleChallenge={this.handleChallenge} />
       }
     });

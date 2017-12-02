@@ -38,13 +38,13 @@ defmodule BattleshipWeb.GameChannel do
         with {:true, game} <- Game.game_over?(game) do
           handle_game_over(game, game_id)
         else
-          handle_hit(socket, game, game_id, user_id)
+          {:false, game} -> handle_hit(socket, game, game_id, user_id)
         end
       {:miss, game} ->
         with {:true, game} <- Game.game_over?(game) do
           handle_game_over(game, game_id)
         else
-          handle_miss(socket, game, game_id, user_id)
+          {:false, game} -> handle_miss(socket, game, game_id, user_id)
         end
        _ ->
     end
@@ -53,7 +53,7 @@ defmodule BattleshipWeb.GameChannel do
   end
 
   def handle_game_over(game, game_id) do
-    send_to_all(game)
+    state_to_all(game, "new_game_state")
 
     game = Game.reset(game)
     GameAgent.put(game_id, game)
@@ -68,9 +68,9 @@ defmodule BattleshipWeb.GameChannel do
   def handle_miss(socket, game, game_id, user_id) do
     GameAgent.put(game_id, game)
     if game.waiting_on == 2 do
-      send_to_all(game)
+      state_to_all(game, "new_game_state")
     else
-      view = Game.client_view(Game.set_state(game, "WAITING"), user_id)
+      view = Game.client_view(Game.set_status(game, "WAITING"), user_id)
       push(socket, "new_game_status", view)
     end
   end
@@ -80,19 +80,19 @@ defmodule BattleshipWeb.GameChannel do
       "PLACING" ->
         push(socket, "new_game_state", Game.client_view(game, user_id))
       "ATTACK" ->
-        send_to_all(game)
+        state_to_all(game, "new_game_state")
       "GAMEOVER" ->
-        send_to_all(game)
+        state_to_all(game, "new_game_state")
     end
   end
 
-  def send_to_all(game) do
+  def state_to_all(game, topic) do
     p1 = game.player1.id
     p2 = game.player2.id
     BattleshipWeb.Endpoint.broadcast!("game:" <> Integer.to_string(p1),
-      "new_game_state", Game.client_view(game, p1))
+      topic, Game.client_view(game, p1))
     BattleshipWeb.Endpoint.broadcast!("game:" <> Integer.to_string(p2),
-      "new_game_state", Game.client_view(game, p2))
+      topic, Game.client_view(game, p2))
   end
 
   # Add authorization logic here as required.

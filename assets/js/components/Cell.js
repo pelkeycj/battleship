@@ -39,7 +39,7 @@ class Cell extends React.Component {
       case '~':
         return 'blue';
       case '|':
-        return 'black';
+        return 'lightgray';
       case 'O':
         return 'white';
       case 'X':

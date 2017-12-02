@@ -145,7 +145,6 @@ class Grid extends React.Component {
       params = {
         coords: { row, col },
       };
-      console.log('attacking', params);
       this.props.handleClick(params);
     }
   }

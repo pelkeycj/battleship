@@ -21,6 +21,7 @@ class UserShow extends React.Component {
 
   render() {
     const { user } = this.props;
+    console.log('user show', user);
     return (
       <div>
         <Button className='btn btn-sm' style={{ display: 'inline' }} onClick={this.handleClick}>

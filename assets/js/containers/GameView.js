@@ -1,9 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Row, Col } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import Grid from './Grid';
 import ChatPanel from './ChatPanel';
-import { placeShip, attack } from '../actions/app';
+import { placeShip, attack, sendMsg } from '../actions/app';
 
 
 type Props = {
@@ -14,21 +16,26 @@ type Props = {
   status: string,
   ships_to_place: Object,
   channel: Object,
+  table_channel: Object,
   game_id: string,
   placeShip: () => void,
   attack: () => void,
+  sendMsg: () => void,
 }
 
 class GameView extends React.Component {
   constructor() {
     super();
     this.handleClick = this.handleClick.bind(this);
+    this.getGameOverMSG = this.getGameOverMSG.bind(this);
+    this.handleBack = this.handleBack.bind(this);
   }
 
   handleClick(params) {
     console.log('game view click handler');
     params["game_id"] = this.props.game_id;
     const { status, channel, user, ships_to_place } = this.props;
+
     if (status == 'PLACING' && ships_to_place
       && (ships_to_place.length > 0) && user.id == params.id) {
       this.props.placeShip(channel, params);
@@ -40,18 +47,44 @@ class GameView extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.log('current', this.props);
-    console.log('next', nextProps);
+
+  getGameOverMSG(winner) {
+    const { table_channel, status } = this.props;
+    if (status === 'GAMEOVER') {
+      const msg = {
+        username: '[INFO]',
+        text: winner + ' won the game!',
+      };
+
+      this.props.sendMsg(table_channel, msg);
+    }
+
+    switch (winner) {
+      case "DRAW":
+        return 'It\'s a DRAW!';
+      default:
+        return winner + ' won the game!';
+    }
   }
 
+  handleBack() {
+    this.context.router.history.push("/table");
+  }
+
+
   render() {
-    const { game, user, player, opponent, status, ships_to_place } = this.props;
+    const { game, player, opponent, status, ships_to_place } = this.props;
 
     return (
       <div>
         <h1>Game</h1>
         <h4>{'Status: ' + status}</h4>
+        {status === "GAMEOVER" &&
+          <div>
+            <h4>{this.getGameOverMSG(game.winner)}</h4>
+            <Button onClick={this.handleBack}>Back to Table</Button>
+          </div>
+        }
         <Row>
           <Col md={5}>
             {player &&
@@ -74,6 +107,10 @@ class GameView extends React.Component {
   }
 }
 
+GameView.contextTypes = {
+  router: PropTypes.object,
+};
+
 export default connect(
   state => ({
     user: state.user.user,
@@ -83,7 +120,8 @@ export default connect(
     opponent: state.game.opponent,
     ships_to_place: state.game.ships_to_place,
     channel: state.game.game_channel,
+    table_channel: state.table.channel,
     game_id: state.game.game_id,
   }),
-  { placeShip, attack },
+  { placeShip, attack, sendMsg },
 )(GameView);
