@@ -51,7 +51,7 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :battleship, Battleship.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
+  username: "battleship",
   password: "postgres",
   database: "battleship_dev",
   hostname: "localhost",
