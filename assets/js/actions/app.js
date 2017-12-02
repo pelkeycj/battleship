@@ -78,6 +78,12 @@ export function signin(channel, username, router) {
   }
 }
 
+export function resetGame() {
+  return (dispatch) => {
+    dispatch({ type: 'RESET_GAME'});
+  }
+}
+
 export function sendMsg(channel, msg) {
   return (dispatch) => {
     channel.push('new_msg', msg)

@@ -81,18 +81,29 @@ defmodule Battleship.App.Game do
     Map.update!(game, :status, fn _ -> status end)
   end
 
+  #toDO PRINTS HERE
   def game_over?(game) do
     p1 = Board.all_sunk?(game.player1)
     p2 = Board.all_sunk?(game.player2)
     both = p1 && p2
+
+    IO.puts("game")
+    IO.inspect(game)
+    IO.puts("bools")
+    IO.inspect(p1)
+    IO.inspect(p2)
     cond do
-      game.waiting_on == 1 || (!p1 && !p2) ->
+      game.waiting_on == 1 && (!p1 || !p2) ->
+        IO.puts("not done")
         {:false, game}
       both ->
+        IO.puts("done - both")
         {:true, set_winner(game, "DRAW")}
       p1 ->
+        IO.puts("done p1")
         {:true, set_winner(game, game.player1.name)}
       p2 ->
+        IO.puts("done p2")
         {:true, set_winner(game, game.player2.name)}
       true -> {:false, game}
     end

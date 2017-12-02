@@ -21,7 +21,6 @@ export default function(state = initialState, action) {
         game_id: action.resp.game_id,
       });
     case 'SET_GAME_STATE':
-      console.log('new game state', action.resp);
       return Object.assign({}, state, {
         game: action.resp,
         player: action.resp.player,
@@ -30,8 +29,9 @@ export default function(state = initialState, action) {
         ships_to_place: action.resp.player.ships_to_place,
       });
     case 'SET_GAME_STATUS':
-      console.log('set status', action);
       return Object.assign({}, state, { status: action.status});
+    case 'RESET_GAME':
+      return initialState;
     default:
       return state;
   }

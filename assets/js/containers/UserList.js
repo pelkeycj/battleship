@@ -23,6 +23,7 @@ class UserList extends React.Component {
   props: Props
 
   componentWillReceiveProps(nextProps) {
+    console.log('next props', nextProps);
     this.setState({ users: nextProps.users });
     this.forceUpdate();
   }
@@ -40,10 +41,12 @@ class UserList extends React.Component {
   }
 
   render() {
-    let { users } = this.state;
+    let { users } = this.props;
     if (!users) {
       users = [];
     }
+
+    console.log('users list; ', users);
 
     users = users.map(user => {
       console.log('user', user);

@@ -5,7 +5,7 @@ import { Row, Col } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import Grid from './Grid';
 import ChatPanel from './ChatPanel';
-import { placeShip, attack, sendMsg } from '../actions/app';
+import { placeShip, attack, sendMsg, resetGame } from '../actions/app';
 
 
 type Props = {
@@ -21,6 +21,7 @@ type Props = {
   placeShip: () => void,
   attack: () => void,
   sendMsg: () => void,
+  resetGame: () => void,
 }
 
 class GameView extends React.Component {
@@ -32,7 +33,6 @@ class GameView extends React.Component {
   }
 
   handleClick(params) {
-    console.log('game view click handler');
     params["game_id"] = this.props.game_id;
     const { status, channel, user, ships_to_place } = this.props;
 
@@ -42,7 +42,6 @@ class GameView extends React.Component {
     }
     else if (status == 'ATTACK') {
       params["id"] = user.id + '';
-      console.log('attack', params);
       this.props.attack(channel, params);
     }
   }
@@ -68,6 +67,7 @@ class GameView extends React.Component {
   }
 
   handleBack() {
+    this.props.resetGame();
     this.context.router.history.push("/table");
   }
 
@@ -123,5 +123,5 @@ export default connect(
     table_channel: state.table.channel,
     game_id: state.game.game_id,
   }),
-  { placeShip, attack, sendMsg },
+  { placeShip, attack, sendMsg, resetGame },
 )(GameView);
