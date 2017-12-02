@@ -27,26 +27,24 @@ defmodule BattleshipWeb.GameChannel do
     {:reply, {:ok, %{}}, socket}
   end
 
+  #TODO on hit, swaps boards? or is it displaying wrong?
   def handle_in("attack", payload, socket) do
     game_id = payload["game_id"]
-    user_id = payload["user_id"]
-
+    user_id = String.to_integer(payload["id"])
     game = GameAgent.get(game_id)
 
     case Game.attack(game, payload) do
       {:hit, game} ->
-        IO.puts("game")
-        IO.inspect(game)
-        GameAgent.put(game_id, game)
-        push(socket, "new_game_state", Game.client_view(game, user_id))
-      {:miss, game} ->
-        IO.puts("game")
-        IO.inspect(game)
-        GameAgent.put(game_id, game)
-        if game.waiting_on == 2 do
-          broadcast_game_state(socket, game, user_id)
+        with {:true, game} <- Game.game_over?(game) do
+          handle_game_over(game, game_id)
         else
-          push(socket, "new_game_status", %{status: "WAITING"})
+          handle_hit(socket, game, game_id, user_id)
+        end
+      {:miss, game} ->
+        with {:true, game} <- Game.game_over?(game) do
+          handle_game_over(game, game_id)
+        else
+          handle_miss(socket, game, game_id, user_id)
         end
        _ ->
     end
@@ -54,19 +52,47 @@ defmodule BattleshipWeb.GameChannel do
     {:reply, {:ok, %{}}, socket}
   end
 
+  def handle_game_over(game, game_id) do
+    send_to_all(game)
+
+    game = Game.reset(game)
+    GameAgent.put(game_id, game)
+  end
+
+
+  def handle_hit(socket, game, game_id, user_id) do
+    GameAgent.put(game_id, game)
+    push(socket, "new_game_state", Game.client_view(game, user_id))
+  end
+
+  def handle_miss(socket, game, game_id, user_id) do
+    GameAgent.put(game_id, game)
+    if game.waiting_on == 2 do
+      send_to_all(game)
+    else
+      view = Game.client_view(Game.set_state(game, "WAITING"), user_id)
+      push(socket, "new_game_status", view)
+    end
+  end
+
   def broadcast_game_state(socket, game, user_id) do
     case game.status do
       "PLACING" ->
         push(socket, "new_game_state", Game.client_view(game, user_id))
-
       "ATTACK" ->
-        p1 = game.player1.id
-        p2 = game.player2 .id
-        BattleshipWeb.Endpoint.broadcast("game:" <> Integer.to_string(p1),
-          "new_game_state", Game.client_view(game, p1))
-        BattleshipWeb.Endpoint.broadcast("game:" <> Integer.to_string(p2),
-          "new_game_state", Game.client_view(game, p2))
+        send_to_all(game)
+      "GAMEOVER" ->
+        send_to_all(game)
     end
+  end
+
+  def send_to_all(game) do
+    p1 = game.player1.id
+    p2 = game.player2.id
+    BattleshipWeb.Endpoint.broadcast!("game:" <> Integer.to_string(p1),
+      "new_game_state", Game.client_view(game, p1))
+    BattleshipWeb.Endpoint.broadcast!("game:" <> Integer.to_string(p2),
+      "new_game_state", Game.client_view(game, p2))
   end
 
   # Add authorization logic here as required.

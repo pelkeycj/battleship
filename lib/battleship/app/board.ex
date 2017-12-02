@@ -19,6 +19,15 @@ defmodule Battleship.App.Board do
     }
   end
 
+  def clear(board) do
+    %{
+      id: board.id,
+      name: board.name,
+      grid: make_water_grid(),
+      ships_to_place: list_all_ships(),
+    }
+  end
+
   # lists all ships
   def list_all_ships do
     [5, 4, 3, 3, 2]
@@ -136,6 +145,14 @@ defmodule Battleship.App.Board do
     IO.puts("val:")
     IO.inspect(val)
     val == @water || val == @ship
+  end
+
+  def all_sunk?(board) do
+    Enum.all?(board.grid, fn row ->
+      Enum.all?(row, fn cell ->
+        cell != @ship
+      end)
+    end)
   end
 
   def attack(board, %{"row" => row, "col" => col}) do

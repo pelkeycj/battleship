@@ -10,14 +10,26 @@ defmodule Battleship.App.Game do
       status: "PLACING",
       player1: Board.new(params["to_id"], params["to_name"]),
       player2: Board.new(params["from_id"], params["from_name"]),
-      waiting_on: 2,
+      winner: "",
+      waiting_on: 2
+    }
+  end
+
+  def reset(game) do
+    %{
+      game_id: game.game_id,
+      status: "PLACING",
+      player1: Board.clear(player1),
+      player2: Board.clear(player2),
+      winner: "",
+      waiting_on: 2
     }
   end
 
   # returns necessary info for client
   # sanitizes opponent board to known values
   def client_view(game, client_id) do
-    view = %{ status: game.status, game_id: game.game_id }
+    view = %{ status: game.status, game_id: game.game_id, winner: game.winner }
 
     if game.player1.id == client_id do
       view
@@ -70,6 +82,32 @@ defmodule Battleship.App.Game do
     end
   end
 
+  def set_status(game, status) do
+    Map.update!(game, :status, fn _ -> status end)
+  end
+
+  def game_over?(game) do
+    p1 = Board.all_sunk?(game.player1)
+    p2 = Board.all_sunk?(game.player2)
+    both = p1 && p2
+    cond do
+      game.waiting == 1 ->
+        {:false, game}
+      both ->
+        {:true, set_winner(game, "DRAW")}
+      p1 ->
+        {:true, set_winner(game, game.player1.name)}
+      p2 ->
+        {:true, set_winner(game, game.player2.name)}
+      _ -> {:false, game}
+    end
+  end
+
+  def set_winner(game, winner) do
+    game
+    |> Map.update!(:status, "GAMEOVER")
+    |> Map.update!(:winner, fn _ -> winner end)
+  end
 
   def place_ship(game, %{"id" => id, "ship" => ship}) do
     id = String.to_integer(id)
@@ -103,7 +141,7 @@ defmodule Battleship.App.Game do
         1 ->
           game
           |> Map.update!(:waiting_on, fn x -> 2 end)
-          |> Map.update!(:status, fn x -> "ATTACK" end)
+          |> set_status("ATTACK")
 
         2 ->
           game = game
