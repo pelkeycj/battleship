@@ -49,6 +49,19 @@ defmodule BattleshipWeb.TableChannel do
     {:reply, {:ok, payload}, socket}
   end
 
+  # users issue challenge
+  # broadcast to entire table
+  # payload is in form {to_id, to_name, from_id, from_name}
+  def handle_in("issue_challenge", payload, socket) do
+    broadcast(socket, "challenge_issued", payload)
+    {:reply, {:ok, payload}, socket}
+  end
+
+  def handle_in("accept_challenge", payload, socket) do
+    broadcast(socket, "challenge_accepted", payload)
+    {:reply, {:ok, payload}, socket}
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true

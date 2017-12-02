@@ -16,6 +16,8 @@ defmodule Battleship.Application do
       # worker(Battleship.Worker, [arg1, arg2, arg3]),
 
       supervisor(Battleship.Presence, []),
+
+      worker(Battleship.GameAgent, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
